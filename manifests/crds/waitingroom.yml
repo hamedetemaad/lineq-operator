@@ -1,0 +1,42 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: waitingrooms.lineq.io
+spec:
+  group: lineq.io
+  scope: Namespaced
+  names:
+    kind: WaitingRoom
+    listKind: WaitingRoomList
+    singular: waitingroom
+    plural: waitingrooms
+    shortNames:
+      - wr
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              path:
+                type: string
+              activeUsers:
+                type: integer
+              schema:
+                type: string
+              host:
+                type: string
+              backendSvcAddr:
+                type: string
+              backendSvcPort:
+                type: integer
+            required:
+              - path
+              - host
+              - backendSvcAddr
+              - backendSvcPort
