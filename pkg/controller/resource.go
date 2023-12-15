@@ -33,6 +33,7 @@ func createIngress(newWaitingRoom *wrv1alpha1.WaitingRoom, namespace string) *ne
 
 func createIngressSpec(name, namespace, path string, activeUsers int, host string, scheme string, backSvcAddr string, backSvcPort int) netv1.IngressSpec {
 	pathTypeImplementationSpecific := netv1.PathTypeImplementationSpecific
+	ingressClassName := "haproxy"
 	ingressRule := netv1.IngressRule{
 		Host: host,
 		IngressRuleValue: netv1.IngressRuleValue{
@@ -56,7 +57,8 @@ func createIngressSpec(name, namespace, path string, activeUsers int, host strin
 	}
 
 	ingressSpec := netv1.IngressSpec{
-		Rules: []netv1.IngressRule{ingressRule},
+		IngressClassName: &ingressClassName,
+		Rules:            []netv1.IngressRule{ingressRule},
 	}
 	return ingressSpec
 }
