@@ -1,8 +1,12 @@
 package controller
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
+	"strings"
 
 	wrv1alpha1 "github.com/hamedetemaad/lineq-operator/pkg/waitingroom/v1alpha1"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -12,6 +16,18 @@ import (
 )
 
 const maxRetries = 3
+
+type RequestBody struct {
+	Name            string `json:"name"`
+	Path            string `json:"path"`
+	ActiveUsers     int    `json:"activeUsers"`
+	SessionDuration int    `json:"sessionDuration"`
+}
+
+type ResponseBody struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+}
 
 func (c *Controller) runWorker(ctx context.Context) {
 	for c.processNextItem(ctx) {
@@ -54,12 +70,70 @@ func (c *Controller) processEvent(ctx context.Context, obj interface{}) error {
 	return nil
 }
 
+func (c *Controller) sendBackendRequest(wr *wrv1alpha1.WaitingRoom, name string) {
+
+	url := "http://lineq-http.lineq.svc:8060/create"
+
+	requestBody := RequestBody{
+		Name:            name,
+		Path:            wr.Spec.Path,
+		ActiveUsers:     wr.Spec.ActiveUsers,
+		SessionDuration: wr.Spec.SessionDuration,
+	}
+
+	jsonData, err := json.Marshal(requestBody)
+	if err != nil {
+		fmt.Println("Error encoding JSON:", err)
+		return
+	}
+
+	response, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		fmt.Println("Error sending request:", err)
+		return
+	}
+	defer response.Body.Close()
+
+	var responseBody ResponseBody
+	err = json.NewDecoder(response.Body).Decode(&responseBody)
+	if err != nil {
+		fmt.Println("Error decoding JSON response:", err)
+		return
+	}
+
+	fmt.Printf("Response Status: %s\n", responseBody.Status)
+	fmt.Printf("Response Message: %s\n", responseBody.Message)
+}
+
+func (c *Controller) createName(wr *wrv1alpha1.WaitingRoom) string {
+	domain := strings.Replace(wr.Spec.Host, ".", "_", -1)
+	path := strings.Replace(wr.Spec.Path, "/", "_", -1)
+	name := fmt.Sprintf("%s%s", domain, path)
+
+	return name
+}
+
+func (c *Controller) editHAProxyAuxConfigMap(wr *wrv1alpha1.WaitingRoom, name string) {
+	auxCm, err := c.kubeClientSet.CoreV1().ConfigMaps("haproxy-controller").Get(context.TODO(), "haproxy-auxiliary-configmap", metav1.GetOptions{})
+	fmt.Println(err)
+	backend := `
+backend %s
+  stick-table type string len 36 size 100k expire 5m store gpc1 peers lineq
+  
+`
+
+	backend = fmt.Sprintf(backend, name)
+
+	auxCm.Data["haproxy-auxiliary.cfg"] += backend
+	c.kubeClientSet.CoreV1().ConfigMaps("haproxy-controller").Update(context.TODO(), auxCm, metav1.UpdateOptions{})
+}
+
 func (c *Controller) processAddWaitingRoom(ctx context.Context, wr *wrv1alpha1.WaitingRoom) error {
 	ing := createIngress(wr, c.namespace)
-	cm, err := c.kubeClientSet.CoreV1().ConfigMaps("haproxy-controller").Get(context.TODO(), "haproxy-kubernetes-ingress", metav1.GetOptions{})
-	auxCm, err := c.kubeClientSet.CoreV1().ConfigMaps("haproxy-controller").Get(context.TODO(), "haproxy-auxiliary-configmap", metav1.GetOptions{})
-	editHAProxyConfigMap(cm)
-	editHAProxyAuxConfigMap(auxCm)
+	name := c.createName(wr)
+	c.sendBackendRequest(wr, name)
+	c.editHAProxyAuxConfigMap(wr, name)
+
 	exists, err := resourceExists(ing, c.ingInformer.GetIndexer())
 	if err != nil {
 		return fmt.Errorf("error checking ingress existence %v", err)

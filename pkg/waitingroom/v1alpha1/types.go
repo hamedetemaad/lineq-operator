@@ -16,6 +16,7 @@ type WaitingRoom struct {
 type WaitingRoomSpec struct {
 	Path           string `json:"path"`
 	ActiveUsers    int    `json:"activeUsers"`
+	SessionDuration int   `json:"sessionDuration"`
 	Schema         string `json:"schema"`
 	Host           string `json:"host"`
 	BackendSvcAddr string `json:"backendSvcAddr"`

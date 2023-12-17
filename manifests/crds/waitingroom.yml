@@ -4,7 +4,7 @@ metadata:
   name: waitingrooms.lineq.io
 spec:
   group: lineq.io
-  scope: Namespaced
+  scope: Cluster
   names:
     kind: WaitingRoom
     listKind: WaitingRoomList
@@ -27,6 +27,8 @@ spec:
                 type: string
               activeUsers:
                 type: integer
+              sessionDuration:
+                type: integer
               schema:
                 type: string
               host:
@@ -40,3 +42,5 @@ spec:
               - host
               - backendSvcAddr
               - backendSvcPort
+              - activeUsers
+              - sessionDuration

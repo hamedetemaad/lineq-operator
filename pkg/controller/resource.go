@@ -3,16 +3,9 @@ package controller
 import (
 	wr "github.com/hamedetemaad/lineq-operator/pkg/waitingroom"
 	wrv1alpha1 "github.com/hamedetemaad/lineq-operator/pkg/waitingroom/v1alpha1"
-	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
-
-func editHAProxyAuxConfigMap(cm *corev1.ConfigMap) {
-}
-
-func editHAProxyConfigMap(cm *corev1.ConfigMap) {
-}
 
 func createIngress(newWaitingRoom *wrv1alpha1.WaitingRoom, namespace string) *netv1.Ingress {
 	return &netv1.Ingress{

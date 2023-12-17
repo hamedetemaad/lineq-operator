@@ -2,10 +2,10 @@ apiVersion: lineq.io/v1alpha1
 kind: WaitingRoom
 metadata:
   name: test
-  namespace: lineq
 spec:
   path: "/test"
   activeUsers: 20
+  sessionDuration: 5
   schema: "http"
   host: "example.com"
   backendSvcAddr: example
