@@ -118,11 +118,10 @@ func (c *Controller) editHAProxyAuxConfigMap(wr *wrv1alpha1.WaitingRoom, name st
 	fmt.Println(err)
 	backend := `
 backend %s
-  stick-table type string len 36 size 100k expire 5m store gpc1 peers lineq
+  stick-table type string len 36 size 100k expire %dm store gpc1 peers lineq
   
 `
-
-	backend = fmt.Sprintf(backend, name)
+	backend = fmt.Sprintf(backend, name, wr.Spec.SessionDuration)
 
 	auxCm.Data["haproxy-auxiliary.cfg"] += backend
 	c.kubeClientSet.CoreV1().ConfigMaps("haproxy-controller").Update(context.TODO(), auxCm, metav1.UpdateOptions{})
