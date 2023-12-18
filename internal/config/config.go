@@ -45,18 +45,22 @@ func (m Metrics) String() string {
 }
 
 type Config struct {
-	KubeConfig string
-	Namespace  string
-	NumWorkers int
-	HA         HA
-	Metrics    Metrics
-	Env        string
-	LogLevel   string
+	KubeConfig    string
+	Namespace     string
+	NumWorkers    int
+	HA            HA
+	Metrics       Metrics
+	Env           string
+	LogLevel      string
+	LineqTcpAddr  string
+	LineqHttpAddr string
+	LineqTcpPort  int
+	LineqHttpPort int
 }
 
 func (c Config) String() string {
 	return fmt.Sprintf(
-		"Config{KubeConfig='%s'Namespace='%s'NumWorkers='%d'HA='%v'Metrics='%v'Env='%s'LogLevel='%s'}",
+		"Config{KubeConfig='%s'Namespace='%s'NumWorkers='%d'HA='%v'Metrics='%v'Env='%s'LogLevel='%s'LineqTcpAddr='%s'LineqHttpAddr='%s'LineqTcpPort='%d'LineqHttpPort='%d'}",
 		c.KubeConfig,
 		c.Namespace,
 		c.NumWorkers,
@@ -64,6 +68,10 @@ func (c Config) String() string {
 		c.Metrics,
 		c.Env,
 		c.LogLevel,
+		c.LineqTcpAddr,
+		c.LineqHttpAddr,
+		c.LineqTcpPort,
+		c.LineqHttpPort,
 	)
 }
 
@@ -99,7 +107,11 @@ func GetConfig() (Config, error) {
 			Path:    env.Get("METRICS_PATH", "/metrics"),
 			Port:    env.Get("METRICS_PORT", "2112"),
 		},
-		Env:      env.Get("ENV", "local"),
-		LogLevel: env.Get("LOG_LEVEL", "debug"),
+		Env:           env.Get("ENV", "local"),
+		LogLevel:      env.Get("LOG_LEVEL", "debug"),
+		LineqTcpAddr:  env.Get("LINEQ_TCP_ADDR", "lineq-tcp.lineq.svc"),
+		LineqHttpAddr: env.Get("LINEQ_HTTP_ADDR", "lineq-http.lineq.svc"),
+		LineqTcpPort:  env.GetInt("LINEQ_TCP_PORT", 11111),
+		LineqHttpPort: env.GetInt("LINEQ_HTTP_PORT", 8060),
 	}, nil
 }

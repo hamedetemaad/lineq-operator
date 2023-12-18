@@ -2,6 +2,7 @@ package runner
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/gotway/gotway/pkg/log"
 	"github.com/hamedetemaad/lineq-operator/internal/config"
@@ -84,14 +85,16 @@ func (r *Runner) initAuxCfg() {
 	config := `
 peers lineq
   server local
-  server lineq lineq-tcp.lineq.svc:11111
+  server lineq %s:%d
 backend room
   stick-table type string size 2 expire 1d store gpc0 peers lineq
 backend lineq
   mode http
-  server lineq lineq-http.lineq.svc:8060
+  server lineq %s:%d
 
 `
+
+	config = fmt.Sprintf(config, r.config.LineqTcpAddr, r.config.LineqTcpPort, r.config.LineqHttpAddr, r.config.LineqHttpPort)
 
 	auxCm.Data = map[string]string{
 		"haproxy-auxiliary.cfg": config,
