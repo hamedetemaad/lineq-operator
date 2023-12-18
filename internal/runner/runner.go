@@ -87,7 +87,7 @@ peers lineq
   server local
   server lineq %s:%d
 backend room
-  stick-table type string size 2 expire 1d store gpc0 peers lineq
+  stick-table type string size 10 expire 1d store gpc0 peers lineq
 backend lineq
   mode http
   server lineq %s:%d
