@@ -129,11 +129,10 @@ backend %s
 }
 
 func (c *Controller) processAddWaitingRoom(ctx context.Context, wr *wrv1alpha1.WaitingRoom) error {
-	ing := createIngress(wr, c.namespace)
 	name := c.createName(wr)
 	c.sendBackendRequest(wr, name)
-	c.editHAProxyAuxConfigMap(wr, name)
 
+	ing := createIngress(wr, c.namespace)
 	exists, err := resourceExists(ing, c.ingInformer.GetIndexer())
 	if err != nil {
 		return fmt.Errorf("error checking ingress existence %v", err)
@@ -146,6 +145,8 @@ func (c *Controller) processAddWaitingRoom(ctx context.Context, wr *wrv1alpha1.W
 	_, err = c.kubeClientSet.NetworkingV1().
 		Ingresses(c.namespace).
 		Create(ctx, ing, metav1.CreateOptions{})
+
+	c.editHAProxyAuxConfigMap(wr, name)
 	return err
 }
 
