@@ -4,7 +4,7 @@ metadata:
   name: waitingrooms.lineq.io
 spec:
   group: lineq.io
-  scope: Cluster
+  scope: Namespaced
   names:
     kind: WaitingRoom
     listKind: WaitingRoomList
