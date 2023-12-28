@@ -83,19 +83,19 @@ func (r *Runner) initCfg() {
 
 	config := `
 
-	http-request set-var(txn.vwr_path) var(txn.host),concat('.vwr',txn.path),map(/etc/haproxy/maps/path-exact.map)
-	http-request set-var(txn.has_cookie) req.cook_cnt(sessionid) if { var(txn.vwr_path) -m found }
-	http-request set-var(txn.t2) uuid()  if { var(txn.vwr_path) -m found } !{ var(txn.has_cookie) -m int gt 0 }
-	http-request set-var(txn.sessionid) req.cook(sessionid) if { var(txn.vwr_path) -m found }
-	http-request set-var(txn.index) var(txn.host),regsub(\.,_,g),concat(,txn.path,),regsub(\/,_,g) if { var(txn.vwr_path) -m found }
-	http-request track-sc0 var(txn.index) table %s if { var(txn.vwr_path) -m found }
-	http-response add-header Set-Cookie "sessionid=%%[var(txn.t2)]; path=%%[var(txn.path)]" if { var(txn.vwr_path) -m found } !{ var(txn.has_cookie) -m int gt 0 }
-	http-request track-sc1 var(txn.sessionid),concat('@',txn.index) table %s if { var(txn.vwr_path) -m found } { var(txn.has_cookie) -m int gt 0 }
-	http-request track-sc1 var(txn.t2),concat('@',txn.index) table %s if { var(txn.vwr_path) -m found } !{ var(txn.has_cookie) -m int gt 0 }
-	http-request sc-inc-gpc1(1) if { var(txn.vwr_path) -m found } { sc_get_gpc0(0) gt 0 } !{ sc_get_gpc1(1) eq 1 }
-	use_backend %%[var(txn.path_match),field(1,.)] if !{ var(txn.vwr_path) -m found } !{ path_sub /lineq }
-	use_backend %%[var(txn.vwr_path),field(1,.)] if { sc_get_gpc1(1) eq 1 } || { sc_get_gpc0(0) gt 0 }
-	use_backend lineq
+http-request set-var(txn.vwr_path) var(txn.host),concat('.vwr',txn.path),map(/etc/haproxy/maps/path-exact.map)
+http-request set-var(txn.has_cookie) req.cook_cnt(sessionid) if { var(txn.vwr_path) -m found }
+http-request set-var(txn.t2) uuid()  if { var(txn.vwr_path) -m found } !{ var(txn.has_cookie) -m int gt 0 }
+http-request set-var(txn.sessionid) req.cook(sessionid) if { var(txn.vwr_path) -m found }
+http-request set-var(txn.index) var(txn.host),regsub(\.,_,g),concat(,txn.path,),regsub(\/,_,g) if { var(txn.vwr_path) -m found }
+http-request track-sc0 var(txn.index) table %s if { var(txn.vwr_path) -m found }
+http-response add-header Set-Cookie "sessionid=%%[var(txn.t2)]; path=%%[var(txn.path)]" if { var(txn.vwr_path) -m found } !{ var(txn.has_cookie) -m int gt 0 }
+http-request track-sc1 var(txn.sessionid),concat('@',txn.index) table %s if { var(txn.vwr_path) -m found } { var(txn.has_cookie) -m int gt 0 }
+http-request track-sc1 var(txn.t2),concat('@',txn.index) table %s if { var(txn.vwr_path) -m found } !{ var(txn.has_cookie) -m int gt 0 }
+http-request sc-inc-gpc1(1) if { var(txn.vwr_path) -m found } { sc_get_gpc0(0) gt 0 } !{ sc_get_gpc1(1) eq 1 }
+use_backend %%[var(txn.path_match),field(1,.)] if !{ var(txn.vwr_path) -m found } !{ path_sub /lineq }
+use_backend %%[var(txn.vwr_path),field(1,.)] if { sc_get_gpc1(1) eq 1 } || { sc_get_gpc0(0) gt 0 }
+use_backend lineq
 
 `
 
