@@ -6,7 +6,6 @@ metadata:
 spec:
   path: "/"
   activeUsers: 20
-  sessionDuration: 5
   schema: "http"
   host: "example.com"
   backendSvcAddr: test-service

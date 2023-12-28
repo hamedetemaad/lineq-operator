@@ -6,13 +6,12 @@ package v1alpha1
 // WaitingRoomSpecApplyConfiguration represents an declarative configuration of the WaitingRoomSpec type for use
 // with apply.
 type WaitingRoomSpecApplyConfiguration struct {
-	Path            *string `json:"path,omitempty"`
-	ActiveUsers     *int    `json:"activeUsers,omitempty"`
-	SessionDuration *int    `json:"sessionDuration,omitempty"`
-	Schema          *string `json:"schema,omitempty"`
-	Host            *string `json:"host,omitempty"`
-	BackendSvcAddr  *string `json:"backendSvcAddr,omitempty"`
-	BackendSvcPort  *int    `json:"backendSvcPort,omitempty"`
+	Path           *string `json:"path,omitempty"`
+	ActiveUsers    *int    `json:"activeUsers,omitempty"`
+	Schema         *string `json:"schema,omitempty"`
+	Host           *string `json:"host,omitempty"`
+	BackendSvcAddr *string `json:"backendSvcAddr,omitempty"`
+	BackendSvcPort *int    `json:"backendSvcPort,omitempty"`
 }
 
 // WaitingRoomSpecApplyConfiguration constructs an declarative configuration of the WaitingRoomSpec type for use with
@@ -34,14 +33,6 @@ func (b *WaitingRoomSpecApplyConfiguration) WithPath(value string) *WaitingRoomS
 // If called multiple times, the ActiveUsers field is set to the value of the last call.
 func (b *WaitingRoomSpecApplyConfiguration) WithActiveUsers(value int) *WaitingRoomSpecApplyConfiguration {
 	b.ActiveUsers = &value
-	return b
-}
-
-// WithSessionDuration sets the SessionDuration field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the SessionDuration field is set to the value of the last call.
-func (b *WaitingRoomSpecApplyConfiguration) WithSessionDuration(value int) *WaitingRoomSpecApplyConfiguration {
-	b.SessionDuration = &value
 	return b
 }
 

@@ -27,8 +27,6 @@ spec:
                 type: string
               activeUsers:
                 type: integer
-              sessionDuration:
-                type: integer
               schema:
                 type: string
               host:
@@ -43,4 +41,3 @@ spec:
               - backendSvcAddr
               - backendSvcPort
               - activeUsers
-              - sessionDuration
