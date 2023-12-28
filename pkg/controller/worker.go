@@ -18,10 +18,10 @@ import (
 const maxRetries = 3
 
 type RequestBody struct {
-	Name            string `json:"name"`
-	Path            string `json:"path"`
-	ActiveUsers     int    `json:"activeUsers"`
-	SessionDuration int    `json:"sessionDuration"`
+	Name        string `json:"name"`
+	Path        string `json:"path"`
+	ActiveUsers int    `json:"activeUsers"`
+	Host        string `json:"host"`
 }
 
 type ResponseBody struct {
@@ -71,25 +71,24 @@ func (c *Controller) processEvent(ctx context.Context, obj interface{}) error {
 }
 
 func (c *Controller) sendBackendRequest(wr *wrv1alpha1.WaitingRoom, name string) {
-
-	url := "http://lineq-http.lineq.svc:8060/create"
+	url := fmt.Sprintf("http://%s:%d/create", c.config.LineqHttpAddr, c.config.LineqHttpPort)
 
 	requestBody := RequestBody{
-		Name:            name,
-		Path:            wr.Spec.Path,
-		ActiveUsers:     wr.Spec.ActiveUsers,
-		SessionDuration: wr.Spec.SessionDuration,
+		Name:        name,
+		Path:        wr.Spec.Path,
+		ActiveUsers: wr.Spec.ActiveUsers,
+		Host:        wr.Spec.Host,
 	}
 
 	jsonData, err := json.Marshal(requestBody)
 	if err != nil {
-		fmt.Println("Error encoding JSON:", err)
+		c.logger.Infof("Error encoding JSON: %v", err)
 		return
 	}
 
 	response, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
-		fmt.Println("Error sending request:", err)
+		c.logger.Infof("Error sending request: %v", err)
 		return
 	}
 	defer response.Body.Close()
@@ -97,12 +96,12 @@ func (c *Controller) sendBackendRequest(wr *wrv1alpha1.WaitingRoom, name string)
 	var responseBody ResponseBody
 	err = json.NewDecoder(response.Body).Decode(&responseBody)
 	if err != nil {
-		fmt.Println("Error decoding JSON response:", err)
+		c.logger.Infof("Error decoding JSON response: %v", err)
 		return
 	}
 
-	fmt.Printf("Response Status: %s\n", responseBody.Status)
-	fmt.Printf("Response Message: %s\n", responseBody.Message)
+	c.logger.Infof("Response Status: '%s'", responseBody.Status)
+	c.logger.Infof("Response Message: '%s'", responseBody.Message)
 }
 
 func (c *Controller) createName(wr *wrv1alpha1.WaitingRoom) string {
@@ -111,21 +110,6 @@ func (c *Controller) createName(wr *wrv1alpha1.WaitingRoom) string {
 	name := fmt.Sprintf("%s%s", domain, path)
 
 	return name
-}
-
-func (c *Controller) editHAProxyAuxConfigMap(wr *wrv1alpha1.WaitingRoom, name string) {
-	auxCm, err := c.kubeClientSet.CoreV1().ConfigMaps("haproxy-controller").Get(context.TODO(), "haproxy-auxiliary-configmap", metav1.GetOptions{})
-	fmt.Println(err)
-	backend := `
-
-backend %s
-  stick-table type string len 36 size 100k expire %dm store gpc1 peers lineq
-
-`
-	backend = fmt.Sprintf(backend, name, wr.Spec.SessionDuration)
-
-	auxCm.Data["haproxy-auxiliary.cfg"] += backend
-	c.kubeClientSet.CoreV1().ConfigMaps("haproxy-controller").Update(context.TODO(), auxCm, metav1.UpdateOptions{})
 }
 
 func (c *Controller) processAddWaitingRoom(ctx context.Context, wr *wrv1alpha1.WaitingRoom) error {
@@ -146,7 +130,6 @@ func (c *Controller) processAddWaitingRoom(ctx context.Context, wr *wrv1alpha1.W
 		Ingresses(wr.Namespace).
 		Create(ctx, ing, metav1.CreateOptions{})
 
-	c.editHAProxyAuxConfigMap(wr, name)
 	return err
 }
 
