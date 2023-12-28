@@ -11,6 +11,7 @@ import (
 	wrv1alpha1clientset "github.com/hamedetemaad/lineq-operator/pkg/waitingroom/v1alpha1/apis/clientset/versioned"
 	wrinformers "github.com/hamedetemaad/lineq-operator/pkg/waitingroom/v1alpha1/apis/informers/externalversions"
 
+	"github.com/hamedetemaad/lineq-operator/internal/config"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	kubeinformers "k8s.io/client-go/informers"
@@ -30,9 +31,12 @@ type Controller struct {
 	namespace string
 
 	logger log.Logger
+
+	config config.Config
 }
 
-func (c *Controller) Run(ctx context.Context, numWorkers int) error {
+func (c *Controller) Run(ctx context.Context, numWorkers int, config config.Config) error {
+	c.config = config
 	defer utilruntime.HandleCrash()
 	defer c.queue.ShutDown()
 

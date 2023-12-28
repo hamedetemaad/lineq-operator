@@ -45,22 +45,25 @@ func (m Metrics) String() string {
 }
 
 type Config struct {
-	KubeConfig    string
-	Namespace     string
-	NumWorkers    int
-	HA            HA
-	Metrics       Metrics
-	Env           string
-	LogLevel      string
-	LineqTcpAddr  string
-	LineqHttpAddr string
-	LineqTcpPort  int
-	LineqHttpPort int
+	KubeConfig           string
+	Namespace            string
+	NumWorkers           int
+	HA                   HA
+	Metrics              Metrics
+	Env                  string
+	LogLevel             string
+	LineqTcpAddr         string
+	LineqHttpAddr        string
+	LineqTcpPort         int
+	LineqHttpPort        int
+	RoomTableName        string
+	UserTableName        string
+	LineqSessionDuration int
 }
 
 func (c Config) String() string {
 	return fmt.Sprintf(
-		"Config{KubeConfig='%s'Namespace='%s'NumWorkers='%d'HA='%v'Metrics='%v'Env='%s'LogLevel='%s'LineqTcpAddr='%s'LineqHttpAddr='%s'LineqTcpPort='%d'LineqHttpPort='%d'}",
+		"Config{KubeConfig='%s'Namespace='%s'NumWorkers='%d'HA='%v'Metrics='%v'Env='%s'LogLevel='%s'LineqTcpAddr='%s'LineqHttpAddr='%s'LineqTcpPort='%d'LineqHttpPort='%d'RoomTableName='%s'UserTableName='%s'LineqSessionDuration='%d'}",
 		c.KubeConfig,
 		c.Namespace,
 		c.NumWorkers,
@@ -72,6 +75,9 @@ func (c Config) String() string {
 		c.LineqHttpAddr,
 		c.LineqTcpPort,
 		c.LineqHttpPort,
+		c.RoomTableName,
+		c.UserTableName,
+		c.LineqSessionDuration,
 	)
 }
 
