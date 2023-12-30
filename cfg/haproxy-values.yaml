@@ -1,0 +1,20 @@
+controller:
+  extraVolumes:
+  - name: haproxy-config
+    emptyDir: {}
+  - name: haproxy-auxiliary-volume
+    configMap:
+      name: haproxy-auxiliary-configmap
+  extraVolumeMounts:
+  - name: haproxy-config
+    mountPath: /usr/local/etc/haproxy
+  extraContainers: 
+    - name: sidecar
+      image: alpine:3.16.0
+      command: ["/bin/sh"]
+      args: ["-c", "while inotifyd - /mnt/haproxy-auxiliary.cfg:e ; do cp -L /mnt/haproxy-auxiliary.cfg /usr/local/etc/haproxy/haproxy-aux.cfg; done"]
+      volumeMounts:
+        - name: haproxy-config
+          mountPath: /usr/local/etc/haproxy
+        - name: haproxy-auxiliary-volume
+          mountPath: /mnt
