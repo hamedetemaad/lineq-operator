@@ -1,5 +1,5 @@
 # LineQ-Operator
-This repository has implemented a Kubernetes operator for the <a href="https://github.com/hamedetemaad/Lineq">LineQ</a> project.
+This repository has implemented a Kubernetes operator for the <a href="https://github.com/hamedetemaad/Lineq">LineQ</a> project
 ## Installation
 
 ### 0 - Install HAproxy ingress
